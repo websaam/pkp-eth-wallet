@@ -63,6 +63,7 @@ export class Signer {
     sendTransaction(transaction) {
         return __awaiter(this, void 0, void 0, function* () {
             this._checkProvider("sendTransaction");
+            console.log("----- sendTransaction -----");
             const tx = yield this.populateTransaction(transaction);
             const signedTx = yield this.signTransaction(tx);
             return yield this.provider.sendTransaction(signedTx);

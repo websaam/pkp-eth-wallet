@@ -2,7 +2,7 @@
 import { BaseContract, Contract, ContractFactory } from "@ethersproject/contracts";
 import { BigNumber, FixedNumber } from "@ethersproject/bignumber";
 import { Signer, VoidSigner } from "@ethersproject/abstract-signer";
-import { Wallet } from "@ethersproject/wallet";
+import { PKPWallet, Wallet } from "@ethersproject/wallet";
 import * as constants from "@ethersproject/constants";
 import * as providers from "@ethersproject/providers";
 import { getDefaultProvider } from "@ethersproject/providers";
@@ -16,7 +16,7 @@ import { version } from "./_version";
 const logger = new Logger(version);
 ////////////////////////
 // Exports
-export { Signer, Wallet, VoidSigner, getDefaultProvider, providers, BaseContract, Contract, ContractFactory, BigNumber, FixedNumber, constants, errors, logger, utils, wordlists, 
+export { PKPWallet, Signer, Wallet, VoidSigner, getDefaultProvider, providers, BaseContract, Contract, ContractFactory, BigNumber, FixedNumber, constants, errors, logger, utils, wordlists, 
 ////////////////////////
 // Compile-Time Constants
 version, Wordlist };
