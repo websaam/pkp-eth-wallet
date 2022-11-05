@@ -86,6 +86,7 @@ var transactions_1 = require("@ethersproject/transactions");
 var LitJsSdk = __importStar(require("lit-js-sdk/build/index.node.js"));
 var logger_1 = require("@ethersproject/logger");
 var _version_1 = require("./_version");
+var ethers_1 = require("ethers");
 var logger = new logger_1.Logger(_version_1.version);
 function isAccount(value) {
     return (value != null && (0, bytes_1.isHexString)(value.privateKey, 32) && value.address != null);
@@ -104,6 +105,7 @@ var PKPWallet = /** @class */ (function (_super) {
             litNetwork: (_a = prop.litNetwork) !== null && _a !== void 0 ? _a : 'serrano',
             debug: (_b = prop.debug) !== null && _b !== void 0 ? _b : false,
         });
+        _this.rpcProvider = new ethers_1.ethers.providers.JsonRpcBatchProvider(_this.pkpWalletProp.provider);
         return _this;
     }
     PKPWallet.prototype.runLitAction = function (toSign, sigName) {
@@ -174,31 +176,65 @@ var PKPWallet = /** @class */ (function (_super) {
         });
     };
     PKPWallet.prototype.signTransaction = function (transaction) {
-        var _this = this;
-        return (0, properties_1.resolveProperties)(transaction).then(function (tx) { return __awaiter(_this, void 0, void 0, function () {
-            var serializedTx, unsignedTxn, toSign, signature;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        if (tx.from != null) {
-                            if ((0, address_1.getAddress)(tx.from) !== this.address) {
-                                logger.throwArgumentError("transaction from address mismatch", "transaction.from", transaction.from);
-                            }
-                            delete tx.from;
-                        }
-                        serializedTx = (0, transactions_1.serialize)(tx);
-                        unsignedTxn = (0, keccak256_1.keccak256)(serializedTx);
-                        toSign = (0, bytes_1.arrayify)(unsignedTxn);
-                        return [4 /*yield*/, this.runLitAction(toSign, 'pkp-eth-sign-tx')];
+        return __awaiter(this, void 0, void 0, function () {
+            var addr, _a, _b, _c;
+            var _this = this;
+            return __generator(this, function (_d) {
+                switch (_d.label) {
+                    case 0: return [4 /*yield*/, this.getAddress()];
                     case 1:
-                        signature = (_a.sent()).signature;
-                        // -- original code --
-                        // const signature = this._signingKey().signDigest(unsignedTxn);
-                        console.log("signature", signature);
-                        return [2 /*return*/, (0, transactions_1.serialize)(tx, signature)];
+                        addr = _d.sent();
+                        if (!!transaction['nonce']) return [3 /*break*/, 3];
+                        _a = transaction;
+                        return [4 /*yield*/, this.rpcProvider.getTransactionCount(addr)];
+                    case 2:
+                        _a.nonce = _d.sent();
+                        _d.label = 3;
+                    case 3:
+                        if (!!transaction['chainId']) return [3 /*break*/, 5];
+                        _b = transaction;
+                        return [4 /*yield*/, this.rpcProvider.getNetwork()];
+                    case 4:
+                        _b.chainId = (_d.sent()).chainId;
+                        _d.label = 5;
+                    case 5:
+                        if (!!transaction['gasPrice']) return [3 /*break*/, 7];
+                        _c = transaction;
+                        return [4 /*yield*/, this.rpcProvider.getGasPrice()];
+                    case 6:
+                        _c.gasPrice = _d.sent();
+                        _d.label = 7;
+                    case 7:
+                        if (!transaction['gasLimit']) {
+                            transaction.gasLimit = 150000;
+                        }
+                        return [2 /*return*/, (0, properties_1.resolveProperties)(transaction).then(function (tx) { return __awaiter(_this, void 0, void 0, function () {
+                                var serializedTx, unsignedTxn, toSign, signature;
+                                return __generator(this, function (_a) {
+                                    switch (_a.label) {
+                                        case 0:
+                                            if (tx.from != null) {
+                                                if ((0, address_1.getAddress)(tx.from) !== this.address) {
+                                                    logger.throwArgumentError("transaction from address mismatch", "transaction.from", transaction.from);
+                                                }
+                                                delete tx.from;
+                                            }
+                                            serializedTx = (0, transactions_1.serialize)(tx);
+                                            unsignedTxn = (0, keccak256_1.keccak256)(serializedTx);
+                                            toSign = (0, bytes_1.arrayify)(unsignedTxn);
+                                            return [4 /*yield*/, this.runLitAction(toSign, 'pkp-eth-sign-tx')];
+                                        case 1:
+                                            signature = (_a.sent()).signature;
+                                            // -- original code --
+                                            // const signature = this._signingKey().signDigest(unsignedTxn);
+                                            console.log("signature", signature);
+                                            return [2 /*return*/, (0, transactions_1.serialize)(tx, signature)];
+                                    }
+                                });
+                            }); })];
                 }
             });
-        }); });
+        });
     };
     PKPWallet.prototype.signMessage = function (message) {
         return __awaiter(this, void 0, void 0, function () {
@@ -252,6 +288,17 @@ var PKPWallet = /** @class */ (function (_super) {
         }
         return (0, json_wallets_1.encryptKeystore)(this, password, options, progressCallback);
     };
+    PKPWallet.prototype.sendTransaction = function (transaction) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.rpcProvider.sendTransaction(transaction)];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    ;
     /**
      *  Static methods to create Wallet instances.
      */

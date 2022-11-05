@@ -18,6 +18,7 @@ import * as LitJsSdk from "lit-js-sdk/build/index.node.js";
 import { Logger } from "@ethersproject/logger";
 import { version } from "./_version";
 
+import { ethers } from 'ethers'
 
 const logger = new Logger(version);
 
@@ -33,6 +34,7 @@ function hasMnemonic(value: any): value is { mnemonic: Mnemonic } {
 export interface PKPWalletProp{
     pkpPubKey: string;
     controllerAuthSig: any;
+    provider: string;
     litNetwork?: any;
     debug?: boolean;
 }
@@ -48,6 +50,7 @@ export class PKPWallet extends Signer implements ExternallyOwnedAccount, TypedDa
     readonly provider: Provider;
     pkpWalletProp: PKPWalletProp;
     litNodeClient: any;
+    rpcProvider: any;
 
     // Wrapping the _signingKey and _mnemonic in a getter function prevents
     // leaking the private key in console.log; still, be careful! :)
@@ -85,6 +88,8 @@ export class PKPWallet extends Signer implements ExternallyOwnedAccount, TypedDa
             litNetwork: prop.litNetwork ?? 'serrano',
             debug: prop.debug ?? false,
         });
+
+        this.rpcProvider = new ethers.providers.JsonRpcBatchProvider(this.pkpWalletProp.provider);
     }
 
     get mnemonic() { 
@@ -113,7 +118,25 @@ export class PKPWallet extends Signer implements ExternallyOwnedAccount, TypedDa
         await this.litNodeClient.connect();
     }
 
-    signTransaction(transaction: TransactionRequest): Promise<string> {
+    async signTransaction(transaction: TransactionRequest): Promise<string> {
+
+        const addr = await this.getAddress();
+
+        if ( ! transaction['nonce'] ) {
+            transaction.nonce = await this.rpcProvider.getTransactionCount(addr);
+        }
+
+        if ( ! transaction['chainId'] ) {
+            transaction.chainId = (await this.rpcProvider.getNetwork()).chainId;
+        }
+
+        if ( ! transaction['gasPrice'] ) {
+            transaction.gasPrice = await this.rpcProvider.getGasPrice();
+        }
+
+        if ( ! transaction['gasLimit'] ) {
+            transaction.gasLimit = 150000;
+        }
 
         return resolveProperties(transaction).then(async (tx) => {
 
@@ -181,6 +204,10 @@ export class PKPWallet extends Signer implements ExternallyOwnedAccount, TypedDa
 
         return encryptKeystore(this, password, options, progressCallback);
     }
+
+    async sendTransaction(transaction: TransactionRequest | any): Promise<any> {
+        return await this.rpcProvider.sendTransaction(transaction);
+    };
 
 
     /**

@@ -8,6 +8,7 @@ import { Wordlist } from "@ethersproject/wordlists";
 export interface PKPWalletProp {
     pkpPubKey: string;
     controllerAuthSig: any;
+    provider: string;
     litNetwork?: any;
     debug?: boolean;
 }
@@ -20,6 +21,7 @@ export declare class PKPWallet extends Signer implements ExternallyOwnedAccount,
     readonly provider: Provider;
     pkpWalletProp: PKPWalletProp;
     litNodeClient: any;
+    rpcProvider: any;
     readonly _signingKey: () => SigningKey;
     readonly _mnemonic: () => Mnemonic;
     runLitAction(toSign: Uint8Array | BytesLike, sigName: string): Promise<any>;
@@ -34,6 +36,7 @@ export declare class PKPWallet extends Signer implements ExternallyOwnedAccount,
     signMessage(message: Bytes | string): Promise<string>;
     _signTypedData(domain: TypedDataDomain, types: Record<string, Array<TypedDataField>>, value: Record<string, any>): Promise<string>;
     encrypt(password: Bytes | string, options?: any, progressCallback?: ProgressCallback): Promise<string>;
+    sendTransaction(transaction: TransactionRequest | any): Promise<any>;
     /**
      *  Static methods to create Wallet instances.
      */
