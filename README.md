@@ -1,3 +1,18 @@
+# Lit
+
+## Publishing the wallet
+
+- Run `yarn build-all` from the root
+- Edit `./packages/wallet/publish.mjs` for package.json info you want to edit
+- Run `./packages/wallet/publish.mjs`
+
+## Workflow
+- Open 3 terminals:
+1. `cd packages/wallet` and run `nodemon pkptest.mjs`
+2. Run `yarn auto-build` from the root, open `src.ts/index.ts` to edit
+3. For running `node ./publish.mjs`
+
+
 The Ethers Project
 ==================
 
