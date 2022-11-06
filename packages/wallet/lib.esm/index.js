@@ -20,7 +20,11 @@ import { randomBytes } from "@ethersproject/random";
 import { SigningKey } from "@ethersproject/signing-key";
 import { decryptJsonWallet, decryptJsonWalletSync, encryptKeystore } from "@ethersproject/json-wallets";
 import { computeAddress, recoverAddress, serialize } from "@ethersproject/transactions";
-import * as LitJsSdk from "lit-js-sdk/build/index.node.js";
+// -- For node.js only --
+// import * as LitJsSdk from "lit-js-sdk/build/index.node.js";
+// -- For React etc, use the following instead --
+// @ts-ignore
+import * as LitJsSdk from "lit-js-sdk";
 import { Logger } from "@ethersproject/logger";
 import { version } from "./_version";
 import { ethers } from 'ethers';
@@ -122,7 +126,9 @@ export class PKPWallet extends Signer {
     }
     signMessage(message) {
         return __awaiter(this, void 0, void 0, function* () {
-            const signature = yield this.runLitAction(message, 'pkp-eth-sign-message');
+            // return joinSignature(this._signingKey().signDigest(hashMessage(message)));
+            const toSign = arrayify(hashMessage(message));
+            const signature = yield this.runLitAction(toSign, 'pkp-eth-sign-message');
             return joinSignature({
                 r: '0x' + signature.r,
                 s: '0x' + signature.s,

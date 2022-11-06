@@ -57,7 +57,7 @@ delete json.sideEffects;
 delete json.tarballHash;
 delete json.repository;
 
-json.name = 'pkp-either-signer';
+json.name = 'pkp-eth-signer';
 json.keywords.push('Lit Protocol');
 json.keywords.push('PKP');
 json.author = `${json.author} & modified by Anson (Lit Protocol)`;
@@ -74,12 +74,19 @@ await writeFile('version.txt', version);
 json.version = version;
 
 await writeJsonFile('pkp-package.json', json);
+await writeJsonFile('check.json', json);
 await wait();
 
 await runCommand('mv package.json package.json.bak');
 await wait();
 
 await runCommand('mv pkp-package.json package.json');
+await wait();
+
+// await runCommand('cd ../../ && yarn build-all');
+// await wait();
+
+await runCommand('tsc --build ./tsconfig.json');
 await wait();
 
 await runCommand('npm publish --access public');

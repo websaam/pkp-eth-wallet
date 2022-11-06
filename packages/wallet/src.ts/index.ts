@@ -13,7 +13,13 @@ import { SigningKey } from "@ethersproject/signing-key";
 import { decryptJsonWallet, decryptJsonWalletSync, encryptKeystore, ProgressCallback } from "@ethersproject/json-wallets";
 import { computeAddress, recoverAddress, serialize, UnsignedTransaction } from "@ethersproject/transactions";
 import { Wordlist } from "@ethersproject/wordlists";
-import * as LitJsSdk from "lit-js-sdk/build/index.node.js";
+
+// -- For node.js only --
+// import * as LitJsSdk from "lit-js-sdk/build/index.node.js";
+
+// -- For React etc, use the following instead --
+// @ts-ignore
+import * as LitJsSdk from "lit-js-sdk";
 
 import { Logger } from "@ethersproject/logger";
 import { version } from "./_version";
@@ -165,7 +171,11 @@ export class PKPWallet extends Signer implements ExternallyOwnedAccount, TypedDa
 
     async signMessage(message: Bytes | string): Promise<string> {
 
-        const signature = await this.runLitAction(message, 'pkp-eth-sign-message');
+        // return joinSignature(this._signingKey().signDigest(hashMessage(message)));
+
+        const toSign = arrayify(hashMessage(message));
+
+        const signature = await this.runLitAction(toSign, 'pkp-eth-sign-message');
 
         return joinSignature({
             r: '0x' + signature.r,

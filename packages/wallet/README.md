@@ -1,32 +1,41 @@
-Ethereum Wallet
-===============
+# PKP Wallet Signer
 
-This sub-module is part of the [ethers project](https://github.com/ethers-io/ethers.js).
+## Install
 
-It contains the class to manage a private key and signing for a standard
-externally-owned account.
-
-For more information, see the [documentation](https://docs.ethers.io/v5/api/signer/#Wallet).
-
-
-Importing
----------
-
-Most users will prefer to use the [umbrella package](https://www.npmjs.com/package/ethers),
-but for those with more specific needs, individual components can be imported.
-
-```javascript
-const {
-
-    Wallet,
-
-    verifyMessage
-
-} = require("@ethersproject/wallet");
+```
+yarn add pkp-eth-signer ethers
 ```
 
+## Then
 
-License
--------
+```js
+import { PKPWallet } from 'pkp-eth-signer';
 
-MIT License
+const PKP_PUBKEY = '{YOUR PKP UNCOMPRESSED PUBLIC KEY}';
+
+const CONTROLLER_AUTHSIG = await LitJsSdk.checkAndSignAuthMessage({ chain: 'mumbai' });
+
+const pkpWallet = new PKPWallet({
+    pkpPubKey: PKP_PUBKEY,
+    controllerAuthSig: CONTROLLER_AUTHSIG,
+    provider: "https://matic-mumbai.chainstacklabs.com",
+});
+
+await pkpWallet.init();
+
+const tx = {
+    to: "0x1cD4147AF045AdCADe6eAC4883b9310FD286d95a",
+    value: 0,
+};
+
+// -- Sign Transaction
+const signedTx = await pkpWallet.signTransaction(tx);
+console.log('signedTx:', signedTx);
+
+// -- Send Transaction
+// const sentTx = await pkpWallet.sendTransaction(signedTx);
+// console.log("sentTx:", sentTx);
+
+// -- Sign Message
+const signedMsg = await pkpWallet.signMessage("Secret Message.. shh!");
+console.log('signedMsg:', signedMsg);
