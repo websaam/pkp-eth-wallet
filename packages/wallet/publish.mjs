@@ -2,6 +2,16 @@
 import fs from 'fs';
 import path from 'path';
 import { exec } from 'child_process';
+import { exit } from 'process';
+
+// acept arguments from the command line
+const args = process.argv.slice(2);
+const env = args[0];
+
+if (env !== 'node' && env !== 'browser') {
+    console.log('\x1b[31m%s\x1b[0m', 'Please specify the environment: "node" or "browser"');
+    exit();
+}
 
 // read the file and return as json
 export async function readJsonFile(filename) {
@@ -47,6 +57,7 @@ export async function wait() {
     });
 }
 
+await runCommand('node env.mjs ' + env);
 
 const json = await readJsonFile('package.json');
 
@@ -57,7 +68,11 @@ delete json.sideEffects;
 delete json.tarballHash;
 delete json.repository;
 
-json.name = 'pkp-eth-signer';
+if( env === 'node'){
+    json.name = 'pkp-eth-signer-node';
+}else{
+    json.name = 'pkp-eth-signer';
+}
 json.keywords.push('Lit Protocol');
 json.keywords.push('PKP');
 json.author = `${json.author} & modified by Anson (Lit Protocol)`;
@@ -82,9 +97,6 @@ await wait();
 
 await runCommand('mv pkp-package.json package.json');
 await wait();
-
-// await runCommand('cd ../../ && yarn build-all');
-// await wait();
 
 await runCommand('tsc --build ./tsconfig.json');
 await wait();

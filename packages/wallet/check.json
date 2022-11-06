@@ -1,5 +1,5 @@
 {
-  "author": "Richard Moore <me@ricmoo.com> & modified by Anson (Lit Protocol) & modified by Anson (Lit Protocol)",
+  "author": "Richard Moore <me@ricmoo.com> & modified by Anson (Lit Protocol) & modified by Anson (Lit Protocol) & modified by Anson (Lit Protocol)",
   "dependencies": {
     "@ethersproject/abstract-provider": "^5.7.0",
     "@ethersproject/abstract-signer": "^5.7.0",
@@ -26,15 +26,17 @@
     "Lit Protocol",
     "PKP",
     "Lit Protocol",
+    "PKP",
+    "Lit Protocol",
     "PKP"
   ],
   "license": "MIT",
   "main": "./lib/index.js",
   "module": "./lib.esm/index.js",
-  "name": "pkp-eth-signer",
+  "name": "pkp-eth-signer-node",
   "publishConfig": {
     "access": "public"
   },
   "types": "./lib/index.d.ts",
-  "version": "5.7.18"
+  "version": "5.7.21"
 }

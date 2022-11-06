@@ -3,13 +3,13 @@
 ## Install
 
 ```
-yarn add pkp-eth-signer ethers
+yarn add pkp-eth-signer-node ethers
 ```
 
 ## Then
 
 ```js
-import { PKPWallet } from 'pkp-eth-signer';
+import { PKPWallet } from 'pkp-eth-signer-node';
 
 const PKP_PUBKEY = '{YOUR PKP UNCOMPRESSED PUBLIC KEY}';
 
