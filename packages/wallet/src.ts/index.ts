@@ -197,7 +197,7 @@ export class PKPWallet extends Signer implements ExternallyOwnedAccount, TypedDa
             return this.provider.resolveName(name);
         });
 
-        // return joinSignature(this._signingKey().signDigest(_TypedDataEncoder.hash(populated.domain, types, populated.value)));
+        return joinSignature(this._signingKey().signDigest(_TypedDataEncoder.hash(populated.domain, types, populated.value)));
     }
 
     encrypt(password: Bytes | string, options?: any, progressCallback?: ProgressCallback): Promise<string> {
