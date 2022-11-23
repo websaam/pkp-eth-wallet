@@ -141,7 +141,7 @@ export class PKPWallet extends Signer implements ExternallyOwnedAccount, TypedDa
         }
 
         if ( ! transaction['gasLimit'] ) {
-            transaction.gasLimit = 150000;
+            transaction.gasLimit = await this.rpcProvider.estimateGas(transaction);
         }
 
         return resolveProperties(transaction).then(async (tx) => {
