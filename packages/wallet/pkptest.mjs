@@ -34,5 +34,49 @@ const msg = "Secret Message.. shh!";
 const signedMsg = await pkpWallet.signMessage(msg);
 console.log('signedMsg:', signedMsg);
 
-const addr = ethers.utils.verifyMessage(msg, signedMsg);
-console.log('addr:', addr === await pkpWallet.getAddress());
+const signMsgAddr = ethers.utils.verifyMessage(msg, signedMsg);
+console.log('Signed message verified?', signMsgAddr.toLowerCase() === await pkpWallet.getAddress().toLowerCase());
+
+// Test _signTypedData
+// This message is from https://github.com/MetaMask/test-dapp/blob/main/src/index.js#L1033
+const typedDataV3Params = {
+  types: {
+    EIP712Domain: [
+      { name: 'name', type: 'string' },
+      { name: 'version', type: 'string' },
+      { name: 'chainId', type: 'uint256' },
+      { name: 'verifyingContract', type: 'address' },
+    ],
+    Person: [
+      { name: 'name', type: 'string' },
+      { name: 'wallet', type: 'address' },
+    ],
+    Mail: [
+      { name: 'from', type: 'Person' },
+      { name: 'to', type: 'Person' },
+      { name: 'contents', type: 'string' },
+    ],
+  },
+  primaryType: 'Mail',
+  domain: {
+    name: 'Ether Mail',
+    version: '1',
+    chainId: 80001,
+    verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+  },
+  message: {
+    from: {
+      name: 'Cow',
+      wallet: '0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826',
+    },
+    to: {
+      name: 'Bob',
+      wallet: '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB',
+    },
+    contents: 'Hello, Bob!',
+  },
+};
+
+const signedTypedDataV3 = await pkpWallet._signTypedData(typedDataV3Params.domain, typedDataV3Params.types, typedDataV3Params.message);
+const signTypedDataV3Addr = ethers.utils.verifyTypedData(typedDataV3Params.domain, typedDataV3Params.types, typedDataV3Params.value, signedTypedDataV3);
+console.log('Signed typed data V3 verified?', signTypedDataV3Addr.toLowerCase() === await pkpWallet.getAddress().toLowerCase());
