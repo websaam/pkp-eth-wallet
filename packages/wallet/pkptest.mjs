@@ -37,7 +37,7 @@ console.log('signedMsg:', signedMsg);
 const signMsgAddr = ethers.utils.verifyMessage(msg, signedMsg);
 console.log('Signed message verified?', signMsgAddr.toLowerCase() === await pkpWallet.getAddress().toLowerCase());
 
-// Test _signTypedData
+// Test Sign Typed Data V3
 // This message is from https://github.com/MetaMask/test-dapp/blob/main/src/index.js#L1033
 const typedDataV3Params = {
   types: {
@@ -77,6 +77,12 @@ const typedDataV3Params = {
   },
 };
 
-const signedTypedDataV3 = await pkpWallet._signTypedData(typedDataV3Params.domain, typedDataV3Params.types, typedDataV3Params.message);
-const signTypedDataV3Addr = ethers.utils.verifyTypedData(typedDataV3Params.domain, typedDataV3Params.types, typedDataV3Params.value, signedTypedDataV3);
+// Remove EIP712Domain from types as recommended in https://github.com/ethers-io/ethers.js/issues/687
+const formatV3Types = types;
+if (formatV3Types.EIP712Domain) {
+    delete formatV3Types.EIP712Domain;
+}
+
+const signedTypedDataV3 = await pkpWallet._signTypedData(typedDataV3Params.domain, formatV3Types, typedDataV3Params.message);
+const signTypedDataV3Addr = ethers.utils.verifyTypedData(typedDataV3Params.domain, formatV3Types, typedDataV3Params.value, signedTypedDataV3);
 console.log('Signed typed data V3 verified?', signTypedDataV3Addr.toLowerCase() === await pkpWallet.getAddress().toLowerCase());
