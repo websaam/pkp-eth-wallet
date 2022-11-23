@@ -137,7 +137,7 @@ export class PKPWallet extends Signer implements ExternallyOwnedAccount, TypedDa
         }
 
         if ( ! transaction['gasLimit'] ) {
-            transaction.gasLimit = 150000;
+            transaction.gasLimit = await this.rpcProvider.estimateGas(transaction);
         }
 
         return resolveProperties(transaction).then(async (tx) => {
@@ -193,7 +193,17 @@ export class PKPWallet extends Signer implements ExternallyOwnedAccount, TypedDa
             return this.provider.resolveName(name);
         });
 
-        return joinSignature(this._signingKey().signDigest(_TypedDataEncoder.hash(populated.domain, types, populated.value)));
+        // -- original code --
+        // return joinSignature(this._signingKey().signDigest(_TypedDataEncoder.hash(populated.domain, types, populated.value)));
+        
+        // -- lit action --
+        const toSign = _TypedDataEncoder.hash(populated.domain, types, populated.value);
+        const signature = await this.runLitAction(toSign, 'pkp-eth-sign-typed-data');
+        return joinSignature({
+            r: '0x' + signature.r,
+            s: '0x' + signature.s,
+            v: signature.recid,
+        });
     }
 
     encrypt(password: Bytes | string, options?: any, progressCallback?: ProgressCallback): Promise<string> {
